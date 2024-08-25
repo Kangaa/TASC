@@ -1,0 +1,12 @@
+name = "Sandpiles"
+uuid = "76d1753c-a759-4e45-ba0f-a3c7e63db8af"
+authors = ["Kanga <j.reubender@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
