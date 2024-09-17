@@ -57,3 +57,5 @@ slopes = [coef(c)[2] for c in lms]
 
 ablines!(ax, intercepts, slopes)
 fig
+
+slopes

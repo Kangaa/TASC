@@ -1,14 +1,6 @@
 
-function p(Lattice::AbstractArray{Int, d}, Site::NTuple{d, Integer}) where d 
-    Lattice[CartesianIndex(Site)]
-end
-
-function p(Lattice::AbstractArray{Int, d}, Site::CartesianIndex) where d 
-    Lattice[Site]
-end
-
 function is_stable(Lattice, k = 4)::Bool
-    if [p(Lattice, i) >= k for i in eachindex(IndexCartesian(), Lattice)] |> iszero
+    if [Lattice[i] >= k for i in eachindex(IndexCartesian(), Lattice)] |> iszero
         true
     else
         false
