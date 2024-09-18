@@ -29,10 +29,28 @@ def topple(sandpile):
 
     return sandpile + toppled
 
-def simulate_abelian_sandpile(height, width, iterations):
-    sandpile = np.zeros((height, width), dtype=int)
+class PileStats:
+    def __init__(self):
+        self.age = 0
+        self.mass = 0.0
+        self.n_topples = 0
+        self.edge_loss = 0
 
-    for _ in range(iterations):
-        sandpile = topple(sandpile)
+class SandPile:
+    def __init__(self, n, m, k):
+        self.grid = [[0 for _ in range(m)] for _ in range(n)]
+        self.n = n
+        self.m = m
+        self.k = k
+        self.topple_value = k % 4
+        self.spread_value = k // 4
+        self.stats = PileStats()
 
-    return sandpile
+# Example usage
+if __name__ == "__main__":
+    sand_pile = SandPile(5, 5, 10)
+    print(sand_pile.grid)
+    print(sand_pile.stats.age)
+
+def simulate(sandpile, n):
+    

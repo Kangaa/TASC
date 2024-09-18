@@ -1,5 +1,6 @@
 module Sandpiles
     using DataFrames
-    include("topple_src.jl")
+    include("sand_src.jl")
 
+    export simulate_sandpile
 end # module Sandpiles
