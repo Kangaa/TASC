@@ -3,7 +3,7 @@ using Requires
 
 mutable struct pile_stats 
     age::Number
-    mass::AbstractFloat
+    mass::Number
     n_topples::Integer
     edge_loss::Integer
 
@@ -122,7 +122,7 @@ function simulate_sandpile(size::Tuple{Int, Int} = (10,10); t_max::Int = prod(si
         fig = Figure()
         hm_ax = Axis(fig[1,1],  yaxisposition = :left)
         stats_timeline = fig[1,2] = GridLayout(3,1)
-        height_line_ax = Axis(stats_timeline[1,1], yaxisposition = :right, ylabel = "Mass", flip_ylabel = true)
+        height_line_ax = Axis(stats_timeline[1,1], yaxisposition = :right, ylabel = "ass", flip_ylabel = true)
         topple_line_ax = Axis(stats_timeline[2,1], yaxisposition = :right, ylabel = "Total Topples", flip_ylabel = true)
         topple_freq_ax = Axis(stats_timeline[3,1], yaxisposition = :right, ylabel = "Edge Loss", flip_ylabel = true, xscale = Makie.pseudolog10, yscale = Makie.pseudolog10)
 

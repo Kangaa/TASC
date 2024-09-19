@@ -98,16 +98,15 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
 
     # Preallocate an empty array to hold the log with the specified length
     stats_log = DataFrame(Matrix{Int64}(undef, t_max, 4), [:t, :topples_at_t, :unique_topples_at_t, :mass])
-
+    stats_log[:, :t] = 1:t_max
     for i in 1:t_max
         pile.stats.age += 1
-        stats_log.t[i] = i
 
         #drop random grain
         if drop_placement == "random"
             drop_loc = CartesianIndex(rand(1:size), rand(1:size))
         elseif drop_placement == "center"
-            drop_loc = CartesianIndex(size ÷ 2, size ÷ 2)
+            drop_loc = CartesianIndex((size ÷ 2) +1 , (size ÷ 2)+1)
         end
 
         pile.grid[drop_loc] += 1
