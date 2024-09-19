@@ -7,9 +7,6 @@ class Sandpile:
         self.width = width
         self.sandpile = np.zeros((height, width), dtype=int)
 
-    
-
-
 def topple(sandpile):
     height, width = sandpile.shape
     toppled = np.zeros_like(sandpile)

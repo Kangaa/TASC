@@ -69,7 +69,7 @@ function topple!(pile::SandPile, site::CartesianIndex)
     end
 
     ## Spread the sand
-    pile.grid[spread_locations] .+= pile.spread_value
+    @inbounds pile.grid[spread_locations] .+= pile.spread_value
 
     return spread_locations
 end
@@ -87,7 +87,10 @@ function stabilise!(pile, sites)
     end
 
     return topple_sites
+end
 
+function Euclidean_distance(p1::CartesianIndex, p2::CartesianIndex)
+    return sqrt((p1[1] - p2[1])^2 + (p1[2] - p2[2])^2)
 end
 
 
@@ -97,7 +100,7 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
     # Define the column names and types
 
     # Preallocate an empty array to hold the log with the specified length
-    stats_log = DataFrame(Matrix{Int64}(undef, t_max, 4), [:t, :topples_at_t, :unique_topples_at_t, :mass])
+    stats_log = DataFrame(Matrix{Int64}(undef, t_max, 5), [:t, :topples_at_t, :unique_topples_at_t, :mass, :max_dist])
     stats_log[:, :t] = 1:t_max
     for i in 1:t_max
         pile.stats.age += 1
@@ -120,6 +123,7 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
         pile.stats.mass = sum(pile.grid)
 
         # update stats log
+        stats_log[i, :max_dist] = maximum([Euclidean_distance(drop_loc, site) for site in unique(topple_sites)])
         stats_log[i, :topples_at_t] = length(topple_sites)
         stats_log[i, :unique_topples_at_t] = length(unique(topple_sites))
         stats_log[i, :mass] = pile.stats.mass
@@ -127,3 +131,6 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
 
     return stats_log
 end
+
+
+simulate_sandpile(10)
