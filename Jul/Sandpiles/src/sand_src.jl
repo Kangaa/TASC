@@ -3,11 +3,12 @@ mutable struct pile_stats
     age::Int64
     mass::Int64
     pile_stats() = new(0,0)
+    pile_stats(age::Int64, mass::Int64) = new(age, mass)
 end
 
 
 mutable struct SandPile
-    grid::Matrix{Int}
+    grid::Matrix{Int8}
     const n::Int
     const m::Int
     const k::Int
@@ -75,8 +76,8 @@ function topple!(pile::SandPile, site::CartesianIndex)
 end
 
 function stabilise!(pile, sites)
-    sites = [sites]
-    topple_sites = []
+    sites::Vector{CartesianIndex} = [sites]
+    topple_sites::Vector{CartesianIndex} = []
     while !isempty(sites)
         site = popfirst!(sites)
 
@@ -100,7 +101,8 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
     # Define the column names and types
 
     # Preallocate an empty array to hold the log with the specified length
-    stats_log = DataFrame(Matrix{Int64}(undef, t_max, 5), [:t, :topples_at_t, :unique_topples_at_t, :mass, :max_dist])
+    stats_log = DataFrame([Vector{T}(undef, t_max) for T in (Int, Int, Int, Int, Float64)] 
+         , [:t, :topples_at_t, :unique_topples_at_t, :mass, :max_dist])
     stats_log[:, :t] = 1:t_max
     for i in 1:t_max
         pile.stats.age += 1
@@ -123,7 +125,13 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
         pile.stats.mass = sum(pile.grid)
 
         # update stats log
-        stats_log[i, :max_dist] = maximum([Euclidean_distance(drop_loc, site) for site in unique(topple_sites)])
+        if isempty(topple_sites)
+            stats_log[i, :max_dist] = 0
+        elseif length(topple_sites) == 1
+            stats_log[i, :max_dist] = 1
+        else
+            stats_log[i, :max_dist] = maximum([Euclidean_distance(drop_loc, site) for site in unique(topple_sites)])
+        end
         stats_log[i, :topples_at_t] = length(topple_sites)
         stats_log[i, :unique_topples_at_t] = length(unique(topple_sites))
         stats_log[i, :mass] = pile.stats.mass
@@ -131,6 +139,3 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, dro
 
     return stats_log
 end
-
-
-simulate_sandpile(10)
