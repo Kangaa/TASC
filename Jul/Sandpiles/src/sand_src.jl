@@ -76,13 +76,13 @@ function topple!(pile::SandPile, site::CartesianIndex)
 end
 
 function stabilise!(pile, sites)
-    sites::Vector{CartesianIndex} = [sites]
-    topple_sites::Vector{CartesianIndex} = []
-    while !isempty(sites)
-        site = popfirst!(sites)
+    sites_queue = collect(sites)
+    topple_sites = Vector{CartesianIndex}()
+    while !isempty(sites_queue)
+        site = popfirst!(sites_queue)
 
-        if pile.grid[site] >= pile.k
-            append!(sites, topple!(pile, site))
+        if @inbounds pile.grid[site] >= pile.k
+            append!(sites_queue, topple!(pile, site))
             append!(topple_sites, [site])
         end
     end
@@ -95,7 +95,7 @@ function Euclidean_distance(p1::CartesianIndex, p2::CartesianIndex)
 end
 
 
-function simulate_sandpile(size::Int = 10; k = 4, t_max::Int = prod(size)*4, drop_placement::String = "center", plot::String = "none")
+function simulate_sandpile(size::Int = 10; k = 4, t_max::Int =(size^2)*4, drop_placement::String = "center", plot::String = "none")
     
     pile = SandPile(size, size, k)
     # Define the column names and types

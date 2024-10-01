@@ -28,7 +28,4 @@ for grid in enumerate(test_grids)
     i, grid = grid
    results[i] =  @benchmark stabilise!(pile, CartesianIndex(11,11)) setup = (pile = SandPile(copy($grid)))
 end
-
-big_test = create_test_grids(1001)[500]
-
-big_stab = stabilise!(SandPile(big_test), CartesianIndex(501,501))
+results[5 ]
