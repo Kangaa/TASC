@@ -13,18 +13,18 @@ bibliography: references.bib
 
 # Introduction
 ## Background
-### Sandpile Models
-  - Criticality
-  - Self-organized criticality
-  - Abelian sandpile model
-  - Generalised toppling processes
-  - Applications
 ### Computational simulation
   - Importance
   - Challenges
   - Programming languages
     - Python
     - Julia
+### Sandpile Models
+  - Criticality
+  - Self-organized criticality
+  - Abelian sandpile model
+  - Generalised toppling processes
+  - Applications
 ## Aims
   - Impliment the Abelian Sandpile Model in Python and Julia
   - Compare the performance of the two languages
@@ -74,7 +74,7 @@ bibliography: references.bib
 ### Advantages and Limitations
 
 ## Implications for Computational Simulations
-Reflect on what your findings mean for future computational work in similar fields.
+
 
 # Conclusion
 

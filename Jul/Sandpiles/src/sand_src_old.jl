@@ -15,44 +15,34 @@ mutable struct SandPile
     const topple_value::Int
     const spread_value::Int
     stats::pile_stats
-    topple_check::Dict{CartesianIndex{2}, Bool}
-    topple_count::Dict{CartesianIndex{2},  Int}
 
-    function SandPile(n, m, k)
-        grid = zeros(Int8, n, m)
-        topple_check = Dict{CartesianIndex{2}, Bool}(
-            (CartesianIndex(i, j) => false for i in 1:n, j in 1:m)
-        )
-        topple_count = Dict{CartesianIndex{2}, Int}(
-            (CartesianIndex(i, j) => 0 for i in 1:n, j in 1:m)
-        )
-        new(grid, n, m, k, k % 4, k ÷ 4, pile_stats(), topple_check, topple_count)
-    end
-
-    function SandPile(grid::Matrix) 
-        n, m = size(grid)
-        k = 2*length(size(grid))
-        topple_check = Dict{CartesianIndex{2}, Bool}(
-            (CartesianIndex(i, j) => grid[i, j] >= k for i in 1:n, j in 1:m)
-        )
-        topple_count = Dict{CartesianIndex{2}, Int}(
-            (CartesianIndex(i, j) => 0 for i in 1:n, j in 1:m)
-        )
-    new(
-        grid,
+    SandPile(n,m,k) = new(
+        zeros(n,m),
         n,
         m,
+        k,
+        k%4,
+        k ÷ 4,
+        pile_stats()
+    )
+    SandPile(grid::Matrix, n, m, k) = new(
+        grid,
+        n,m,k, k%4,
+        k ÷ 4,
+        pile_stats()
+    )
+    SandPile(grid::Matrix) = new(
+        grid,
+        size(grid, 1),
+        size(grid, 2),
         4, 
         0,
         1,
         pile_stats(
             0,
             sum(grid)
-        ),
-        topple_check,
-        topple_count
+        )
     )
-    end
 end
 
 function topple!(pile::SandPile, site::CartesianIndex)
@@ -85,22 +75,19 @@ function topple!(pile::SandPile, site::CartesianIndex)
     return spread_locations
 end
 
-function stabilise!(pile)
+function stabilise!(pile, sites)
+    sites_queue = collect(sites)
+    topple_sites = Vector{CartesianIndex}()
+    while !isempty(sites_queue)
+        site = popfirst!(sites_queue)
 
-    while sum(values(pile.topple_check)) != 0
-        site = findfirst(x -> x == true, pile.topple_check)
-
-        if pile.grid[site] >= pile.k
-            for spread_site in topple!(pile, site)
-                pile.topple_check[spread_site] = true
-            end
-            pile.topple_count[site] += 1
-        end
-        
-        if pile.grid[site] < pile.k
-            pile.topple_check[site] = false
+        if @inbounds pile.grid[site] >= pile.k
+            append!(sites_queue, topple!(pile, site))
+            append!(topple_sites, [site])
         end
     end
+
+    return topple_sites
 end
 
 function Euclidean_distance(p1::CartesianIndex, p2::CartesianIndex)
@@ -117,7 +104,6 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int =(size^2)*4, drop_p
     stats_log = DataFrame([Vector{T}(undef, t_max) for T in (Int, Int, Int, Int, Float64)] 
          , [:t, :topples_at_t, :unique_topples_at_t, :mass, :max_dist])
     stats_log[:, :t] = 1:t_max
-
     for i in 1:t_max
         pile.stats.age += 1
 
@@ -129,36 +115,26 @@ function simulate_sandpile(size::Int = 10; k = 4, t_max::Int =(size^2)*4, drop_p
         end
 
         pile.grid[drop_loc] += 1
-        pile.topple_check[drop_loc] = true
 
         # Stabilise pile
-        stabilise!(pile)
+        topple_sites = stabilise!(pile, drop_loc)
 
         # update pile object stats
         pile.stats.mass = sum(pile.grid)
 
         # update stats log
-        n_topples = sum(values(pile.topple_count))
-        unique_topples = keys(filter(x-> x[2] > 0, pile.topple_count))
-        if n_topples == 0
+        if isempty(topple_sites)
             stats_log[i, :max_dist] = 0
-        elseif n_topples == 1
+        elseif length(topple_sites) == 1
             stats_log[i, :max_dist] = 1
         else
-            stats_log[i, :max_dist] = maximum([Euclidean_distance(drop_loc, site) for site in unique_topples])
+            stats_log[i, :max_dist] = maximum([Euclidean_distance(drop_loc, site) for site in unique(topple_sites)])
         end
-        stats_log[i, :topples_at_t] = n_topples
-        stats_log[i, :unique_topples_at_t] = length(unique_topples)
+        stats_log[i, :topples_at_t] = length(topple_sites)
+        stats_log[i, :unique_topples_at_t] = length(unique(topple_sites))
         stats_log[i, :mass] = pile.stats.mass
-
-        # Check if the pile is stable
-        @assert maximum(pile.grid) < k
-
-
-        # reset topple counter
-        for site in keys(pile.topple_count)
-            pile.topple_count[site] = 0
-        end
     end
     return stats_log
 end
+
+simulate_sandpile(10, k = 4, t_max = 100, drop_placement = "center", plot = "none")

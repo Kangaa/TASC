@@ -1,7 +1,7 @@
 include("../src/Sandpiles.jl")
 using CSV
 
-sizes = [701, 801, 901, 1001]
+sizes = [11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
 
 #center drop placement
 for i in sizes
