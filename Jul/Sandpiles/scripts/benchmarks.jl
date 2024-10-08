@@ -28,4 +28,7 @@ for grid in enumerate(test_grids)
     i, grid = grid
    results[i] =  @benchmark stabilise!(pile, CartesianIndex(11,11)) setup = (pile = SandPile(copy($grid)))
 end
-results[5 ]
+
+grid = test_grids[5]
+@benchmark stabilise!(pile, pull_topple!) setup = (pile = SandPile(copy($grid)))
+

@@ -1,9 +1,14 @@
 using DataFrames
+using DataStructures
 mutable struct pile_stats 
     age::Int64
     mass::Int64
-    pile_stats() = new(0,0)
-    pile_stats(age::Int64, mass::Int64) = new(age, mass)
+    topple_count::Array{Int64}
+
+    function pile_stats(grid)
+        n, m = size(grid)
+        new(0, sum(grid), zeros(Int64, n, m))
+    end
 end
 
 
@@ -15,93 +20,166 @@ mutable struct SandPile
     const topple_value::Int
     const spread_value::Int
     stats::pile_stats
-    topple_check::Dict{CartesianIndex{2}, Bool}
-    topple_count::Dict{CartesianIndex{2},  Int}
 
     function SandPile(n, m, k)
         grid = zeros(Int8, n, m)
-        topple_check = Dict{CartesianIndex{2}, Bool}(
-            (CartesianIndex(i, j) => false for i in 1:n, j in 1:m)
-        )
-        topple_count = Dict{CartesianIndex{2}, Int}(
-            (CartesianIndex(i, j) => 0 for i in 1:n, j in 1:m)
-        )
-        new(grid, n, m, k, k % 4, k ÷ 4, pile_stats(), topple_check, topple_count)
+
+        new(grid, n, m, k, k % 4, k ÷ 4, pile_stats(grid))
     end
 
     function SandPile(grid::Matrix) 
         n, m = size(grid)
         k = 2*length(size(grid))
-        topple_check = Dict{CartesianIndex{2}, Bool}(
-            (CartesianIndex(i, j) => grid[i, j] >= k for i in 1:n, j in 1:m)
-        )
-        topple_count = Dict{CartesianIndex{2}, Int}(
-            (CartesianIndex(i, j) => 0 for i in 1:n, j in 1:m)
-        )
     new(
         grid,
         n,
         m,
-        4, 
-        0,
-        1,
-        pile_stats(
-            0,
-            sum(grid)
-        ),
-        topple_check,
-        topple_count
+        k,
+        k % 4,
+        k ÷ 4, 
+        pile_stats(grid)
     )
     end
 end
 
-function topple!(pile::SandPile, site::CartesianIndex)
-    ## Assign memory for the spill locations vector
-    spread_locations::Vector{CartesianIndex{2}} = CartesianIndex{2}[]
-    
-    ## Topple the site
-    pile.grid[site] -= 4
-       
-    # Construct the spill locations vector
+function get_neighbours(pile, site)
+    neighbours_2 = Vector{CartesianIndex{2}}(undef, 4)
+    n_neighbors = 0
     if site[1] != 1
-        push!(spread_locations, site - CartesianIndex(1,0))
+        neighbours_2[n_neighbors += 1] = site - CartesianIndex(1, 0)
     end
-
     if site[1] != pile.n
-        push!(spread_locations, site + CartesianIndex(1,0))
+        neighbours_2[n_neighbors += 1] =  site + CartesianIndex(1,0)
     end
-
     if site[2] != 1
-        push!(spread_locations, site - CartesianIndex(0,1))
+        neighbours_2[n_neighbors += 1] = site - CartesianIndex(0,1)
     end
-
     if site[2] != pile.m
-        push!(spread_locations, site + CartesianIndex(0,1))
+        neighbours_2[n_neighbors += 1] = site + CartesianIndex(0,1)
     end
 
-    ## Spread the sand
-    @inbounds pile.grid[spread_locations] .+= pile.spread_value
-
-    return spread_locations
+    return neighbours_2[1:n_neighbors]
 end
 
-function stabilise!(pile)
+function get_neighbours(grid::Matrix, site::CartesianIndex)
+    neighbours_2 = Vector{CartesianIndex{2}}(undef, 4)
+    n_neighbors = 0
+    if site[1] != 1
+        neighbours_2[n_neighbors += 1] = site - CartesianIndex(1, 0)
+    end
+    if site[1] != size(grid, 1)
+        neighbours_2[n_neighbors += 1] =  site + CartesianIndex(1,0)
+    end
+    if site[2] != 1
+        neighbours_2[n_neighbors += 1] = site - CartesianIndex(0,1)
+    end
+    if site[2] != size(grid, 2)
+        neighbours_2[n_neighbors += 1] = site + CartesianIndex(0,1)
+    end
 
-    while sum(values(pile.topple_check)) != 0
-        site = findfirst(x -> x == true, pile.topple_check)
+    return neighbours_2[1:n_neighbors]
+end
 
-        if pile.grid[site] >= pile.k
-            for spread_site in topple!(pile, site)
-                pile.topple_check[spread_site] = true
+function push_topple!(pile::SandPile, site::CartesianIndex)
+    if pile.grid[site] >= pile.k
+        pile.grid[site] -= pile.k
+        pile.stats.topple_count[site] += 1
+
+        ## Spread the sand to neighbours
+        spread_locations = get_neighbours(pile, site)
+        pile.grid[spread_locations] .+= pile.spread_value
+        return spread_locations
+    else
+        return CartesianIndex[]
+    end
+end
+
+ function pull_topple!(Grid, site)
+    new_value = 0
+    topple = false
+    neighbours = get_neighbours(Grid, site)
+    for neighbour in neighbours
+        if Grid[neighbour] >= pile.k
+           new_value += pile.spread_value
+        end
+    end
+    if Grid[site] >= pile.k
+        new_value -= pile.k
+        topple = true
+    end
+    return (new_value, topple)
+end
+
+## Naive push stabilise function
+function stabilise!(pile, ::typeof(push_topple!))
+    while sum(pile.grid .>= pile.k) != 0
+        for site in eachindex(IndexCartesian(), pile.grid)
+            push_topple!(pile, site)
+        end
+    end
+end
+
+## Targeted push stabilise function
+function stabilise!(pile, ::typeof(push_topple!), sites)
+    queue = Stack{CartesianIndex{2}}()
+    for site in sites
+        push!(queue, site)
+    end
+
+    while !isempty(queue)
+        site = pop!(queue)
+        spread = push_topple!(pile, site)
+        for spread_site in spread
+            if spread_site ∉ queue
+                push!(queue, spread_site)
             end
-            pile.topple_count[site] += 1
-        end
-        
-        if pile.grid[site] < pile.k
-            pile.topple_check[site] = false
         end
     end
 end
+
+## naive pull stabilise function
+function stabilise!(pile, ::typeof(pull_topple!))
+    while sum(pile.grid .>= pile.k) != 0
+        grid_copy = deepcopy(pile.grid)
+        for site in eachindex(IndexCartesian(), pile.grid)
+            new_value, topple = pull_topple!(grid_copy, site)
+            pile.grid[site] += new_value
+        end
+    end
+end
+
+## Targeted pull stabilise function
+function stabilise!(pile, ::typeof(pull_topple!), sites)
+    ## Queue setup
+    queue = Deque{CartesianIndex{2}}()
+    for site in sites
+        push!(queue, site)
+        neighbours = get_neighbours(pile, site)
+        for neighbour in neighbours
+            push!(queue, neighbour)
+        end
+    end
+    while !isempty(queue)
+        grid_copy = deepcopy(pile.grid)
+        new_queue = []
+        for i in 1:length(queue)
+            site = popfirst!(queue)
+            new_value, topple = pull_topple!(grid_copy, site)
+            pile.grid[site] += new_value
+            if topple
+                for neighbour in get_neighbours(pile, site)
+                    if neighbour ∉ queue
+                        push!(new_queue, neighbour)
+                    end
+                end
+            end
+        end
+        for site in new_queue
+            push!(queue, site)
+        end
+    end
+end
+
 
 function Euclidean_distance(p1::CartesianIndex, p2::CartesianIndex)
     return sqrt((p1[1] - p2[1])^2 + (p1[2] - p2[2])^2)
