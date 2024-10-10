@@ -1,0 +1,42 @@
+project:
+  type: manuscript
+  render: 
+    - Sections/Introduction.qmd
+filters:
+  - pseudocode
+manuscript:
+  article: index.qmd
+
+format:
+  html:
+    include-in-header:
+          text: |
+            <script>
+            MathJax = {
+              loader: {
+                load: ['[tex]/boldsymbol']
+              },
+              tex: {
+                tags: "all",
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                packages: {
+                  '[+]': ['boldsymbol']
+                }
+              }
+            };
+            </script>
+            <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  docx: default
+  jats: default
+
+  # (other formats)
+  # pdf: default
+
+execute:
+  freeze: true
+
+
+

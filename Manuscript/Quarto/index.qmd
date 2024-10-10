@@ -1,0 +1,238 @@
+---
+title: The Art of Scientific computation 
+subtitle: A comparison of Python and Julia in the context of the Abelian Sandpile Model
+engine: julia
+authors:
+  - name: (James) Reuben Bender
+    affiliation: The University of Melbourne
+    roles: writing
+    corresponding: true
+bibliography: TASC.bib
+---
+
+# Summary
+
+# Introduction
+## Background
+### Sandpile Models
+  - Criticality
+  - Self-organized criticality
+  - Abelian sandpile model
+  - Generalised toppling processes
+  - Applications
+
+### Computational simulation
+  - Importance
+  - Challenges
+  - Programming languages
+    - Python
+    - Julia
+
+## Aims
+
+  - Impliment the Abelian Sandpile Model in Python and Julia
+  - Compare the performance of the two languages
+    - Speed
+    - Memory usage
+    - Scalability
+    - Numerical stability
+
+# Methodology
+## Simulation Algorithms
+
+### Toppling Algorithms
+#### 'Push' topple algorithm
+
+The naive algorithm is naive in the sense that it is the most straightforward way to implement the toppling algorithm, but also in the sense that it does not assume any information about where topples might occur (i.e. it checks every site, c.f. the targeted algorithm). The algorithm iterates over each site in the lattice, and if the site has more sand than the threshold, it topples and sends sand to its neighbors.
+
+```pseudocode
+#| label: alg-push_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Push toppling algorithm}
+\begin{algorithmic}
+\input{a $n \times m$ lattice $X$, topple threshold $k$, a site $i$}
+\output{a $n \times m$ lattice $Y$}
+  \If {$X_{i} \geq k$}
+      \State $Y_{i} \gets X_{i} - k$
+      \For{each neighbor $j$ of $i$}
+          \State $Y_j \gets X_j + 1$
+      \EndFor
+  \Else
+      \State $Y_i \gets X_i$
+  \EndIf 
+\end{algorithmic}
+\end{algorithm}
+```
+
+Because the every topple event using the naive algorithm effects the output of five locations on the lattice, the algorithm is not suitable for parallelization: the order of the for loop must be preserved to prevent multiple threads from updating the same site simultaneously (which would potentially lead to conflicting results when checking if a site is above the threshold).
+To remedy this limitation, we can use the parallel, or 'pull' algorithm
+
+#### 'pull' topple algorithm
+The parrallel is based on the idea of "pulling" sand from neighbors rather than "pushing" sand to neighbors. Each iteration of the for loop therefore only changes one site (i.e. each iteration is encapsulated), and therefore each cell can be updated in parallel.
+
+```pseudocode
+#| label: alg-pull_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Pull toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$, a site $i$}
+\output{a $n \times m$ lattice $Y$}
+  \If {$X_i \geq k$}
+      \State $Y_i$ $\gets$ $X_i - k$
+  \Else
+      \State $Y_i$ $\gets$ $X_i$
+  \EndIf
+
+  \For {each neighbor $j$ of $i$}
+      \If {$X_j \geq k$}
+          \State $Y_i$ $\gets$ $Y_i + 1$
+      \EndIf
+  \EndFor
+\end{algorihmic}
+\end{algorithm}
+```
+### Stabilisation algorithms
+#### Naive stabilisation algorithm
+The naive stabilisation algorithm is naive in the sense that it is the most straightforward way to implement the toppling algorithm, but also in the sense that it does not assume any information about where topples might occur. It iterates over each site in the lattice, and if the site has more sand than the threshold, it topples. This loop is repeated until each cell is below the toppling threshold. This algorithm works effectively with both push and pull toppling algorithms.
+
+``` pseudocode
+#| label: alg-naive_stabilise
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Naive stabilisation algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$}  
+\output{ $n \times m$ lattice $Y$}
+\While {any site in $X$ is above $k$}
+  \For {each site $i$ in $X$}
+      \If {$X_i \geq k$}
+          \State $Y$ $\gets$ topple!(X, i)
+      \Else
+          \State $Y_i$ $\gets$ $X_i$
+      \EndIf 
+  \EndFor
+\EndWhile
+\end{algorihmic}
+\end{algorithm}
+```
+
+### Targeted stabilisation algorithm
+This algorithm assumes we have information about the locations of potential topple sites. For example, when dropping a single grain of sand, we first can check if the drop site needs to toppled. If it doesn't, there is no possibility of avalance and no other sites need to be checked. If it does, can topple that site and just check the the neighbors to which the sand spreads. While needing less checks, we now must keep track of the sites that need to be checked. It is expected that this algorithm will provide performance improvements when the number of sites that need to be checked is significantly less than the total number of sites (i.e. a 'sparse' avalance)
+
+``` pseudocode
+#| label: alg-targeted_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Targeted toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$, A list of sites to check $L$}  
+\output{  sandpile model lattice $Y$}
+\While {$L$ is not empty}
+    \State remove element $i$ from $L$
+    \If {$X_i \leq k$}
+        \State $Y \gets$ topple!(X, i)
+    \EndIf
+\EndWhile
+\end{algorihmic}
+\end{algorithm}
+```
+
+## Implementation Details
+
+### Python Implementation
+
+  - naive
+  - parallel
+  - optimised
+  - total
+### Julia Implementation
+
+  - naive
+  - parallel
+  - optimised
+  - total
+
+## Computational Environment
+
+  - Hardware
+  - Software
+  - Libraries
+## Performance Metrics
+
+  - Execution time
+  - Memory consumption
+  - Scalability
+  - Numerical stability
+# Results
+
+## Performance Analysis
+### Different Toppling Algorithms
+![Execution time for different toppling algorithms](figures/topple_algos_benchmark.png)
+
+## Properties of the Sandpile
+
+![Distribution of avalanche sizes in the abelian sandpile model at different grid sizes](figures/topple_freqs.png)
+
+![OLS coefficients for topple size and frequency bu lattice size](figures/slope_vs_size.png)
+
+## Comparison of Results
+
+# Discussion
+## Abelian model
+
+
+## Language comparison
+
+### Advantages and Limitations
+
+## Implications for Computational Simulations
+
+# Conclusion
+
+## Summary of Findings
+
+## Recommendations
+
+## Future Work
+
+
+# References
+
+# Appendices
+
+
+
+

@@ -1,0 +1,3 @@
+## The abelian sandpile model
+The abelian sandpile model is a cellular automaton that models the behavior of a pile of sand grains. The model is defined on a lattice, where each site can hold a certain number of grains. When a site reaches a certain number of grains, it becomes unstable and topples, sending one grain to each of its neighbors. This process can cause a chain reaction of topplings, leading to interesting patterns and behavior.
+

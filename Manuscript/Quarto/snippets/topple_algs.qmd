@@ -1,0 +1,161 @@
+---
+title: "Toppling Algorithms"
+filters:
+  - pseudocode
+format:
+  html:
+    include-in-header:
+      text: |
+        <script>
+        MathJax = {
+          loader: {
+            load: ['[tex]/boldsymbol']
+          },
+          tex: {
+            tags: "all",
+            inlineMath: [['$','$'], ['\\(','\\)']],
+            displayMath: [['$$','$$'], ['\\[','\\]']],
+            processEscapes: true,
+            processEnvironments: true,
+            packages: {
+              '[+]': ['boldsymbol']
+            }
+          }
+        };
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+---
+
+## Naive ("push") algorithm
+
+The naive algorithm is naive in the sense that it is the most straightforward way to implement the toppling algorithm, but also in the sense that it does not assume any information about where topples might occur (i.e. it checks every site, c.f. the targeted algorithm). The algorithm iterates over each site in the lattice, and if the site has more sand than the threshold, it topples and sends sand to its neighbors.
+
+``` pseudocode
+#| label: alg-Naive_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Naive toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$}
+\output{ a $n \times m$ lattice $Y$}
+\For {each site $i$ in $X$}
+    \If {$X_i >= k$}
+        \State $Y_i$ gets $X_i - k$
+        \For{each neighbor $j$ of $i$}
+            \State $Y_j$ gets $Y_j + 1$
+        \EndFor
+    \Else
+        \State $Y_i$ gets $X_i$
+    \EndIf 
+\EndFor
+\end{algorihmic}
+\end{algorithm}
+```
+
+Because the every topple event using the naive algorithm effects the output of five locations on the lattice, the algorithm is not suitable for parallelization: the order of the for loop must be preserved to prevent multiple threads from updating the same site simultaneously (which would potentially lead to conflicting results when checking if a site is above the threshold).
+To remedy this limitation, we can use the parallel, or 'pull' algorithm
+
+## Parallel ("pull") algorithm
+The parrallel is based on the idea of "pulling" sand from neighbors rather than "pushing" sand to neighbors. Each iteration of the for loop therefore only changes one site (i.e. each iteration is encapsulated), and therefore each cell can be updated in parallel.
+
+``` pseudocode
+#| label: alg-parralell_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{parralell toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$}
+\output{a $n \times m$ lattice $X$ $Y$}
+\For {each site $i$ in $X$}
+    \If {$X_i >= k$}
+        \State $Y_i$ gets $X_i - k$
+    \Else
+        \State $Y_i$ gets $X_i$
+    \EndIf
+
+    \For {each neighbor $j$ of $i$}
+        \If {$Y_j >= k$}
+            \State $Y_i$ gets $Y_i - 1$
+        \EndIf
+    \EndFor
+\EndFor
+\end{algorihmic}
+\end{algorithm}
+```
+
+## Targeted toppling algorithm
+This algorithm assumes we have information about the locations of potential topple sites. For example, when dropping a single grain of sand, we first can check if the drop site needs to toppled. If it doesn't, there is no avalance and no other sites need to be checked. If it does, can topple that site and just check the the neighbors (etc). While needing less checks, we now must keep track of the sites that need to be checked.
+
+``` pseudocode
+#| label: alg-targeted_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Targeted toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$, A list of sites to check $L$}  
+\output{state  sandpile model lattice $Y$}
+\While {$L$ is not empty}
+    \State remove element $i$ from $L$
+    \If {$X_i >= k$}
+        \State $Y_i$ gets $X_i - k$
+        \For {each neighbor $j$ of $i$}
+            \State $Y_j$ gets $X_j + 1$
+            \State add $j$ to $L$
+        \EndFor
+    \EndIf
+\EndWhile
+\end{algorihmic}
+\end{algorithm}
+```
+
+## Targeted pull algorithm
+
+``` pseudocode
+#| label: alg-targeted_topple
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\caption{Targeted toppling algorithm}
+
+\begin{algorithmic}
+\input{ a $n \times m$ lattice $X$, topple threshold $k$, A list of sites to check $L$}  
+\output{state  sandpile model lattice $Y$, A list of sites to check $L$}
+\For {each site $i$ in $L$}
+    \For
+    \EndFor
+
+
+\EndWhile
+\end{algorihmic}
+\end{algorithm}
+```
