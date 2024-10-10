@@ -1,4 +1,7 @@
+using Pkg; Pkg.activate("Jul/Sandpiles")
+
 using BenchmarkTools
+using CSV
 
 include("../src/sand_src.jl")
 
@@ -22,13 +25,12 @@ function create_test_grids(size::Int)
 end
 test_grids = create_test_grids(21)
 
-results = Vector(undef, length(test_grids))
+results = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
 
-for grid in enumerate(test_grids)
-    i, grid = grid
-   results[i] =  @benchmark stabilise!(pile, CartesianIndex(11,11)) setup = (pile = SandPile(copy($grid)))
+for (i, grid) in enumerate(test_grids)
+    bench = @benchmark stabilise!(pile, pull_topple!) setup = (pile = SandPile(copy($grid)))
+    push!(results, (size = i, time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
 end
 
-grid = test_grids[5]
-@benchmark stabilise!(pile, pull_topple!) setup = (pile = SandPile(copy($grid)))
-
+# Save results to CSV
+CSV.write("Jul/Sandpiles/data/benchmarks/benchmark_pull_naive.csv", results)
