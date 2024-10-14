@@ -6,7 +6,7 @@ using GLMakie, Colors, ColorSchemes
 using Statistics
 using StatsBase
 
-files = readdir("Jul/Sandpiles/data")
+files = readdir("Jul/Sandpiles/data/sims")
 
 # Create a dictionary to store DataFrames with filenames as keys
 all_data = DataFrame()
@@ -22,13 +22,7 @@ for file in files
         rep = parse(Int, parts[4])
         
         # Read the CSV file into a DataFrame
-        df = CSV.read(joinpath("Jul/Sandpiles/data", file), DataFrame)
-        #munge to account for naming change
-        if hasproperty(df, :max_dist)
-            rename!(df, :max_dist => :max_dist_euc)
-            df[:, :max_dist_man] = zeros(Int, nrow(df))
-        end
-
+        df = CSV.read(joinpath("Jul/Sandpiles/data/sims", file), DataFrame)
 
         # Add columns for size and rep
         df[!, :size] = fill(size, nrow(df))
@@ -104,12 +98,14 @@ end
 fig
 
 ##Calculate OLS coefficients for raw frequencies
+topple_freq_stats = subset(topple_freq_stats, :size => x-> x .> 10)
+
 ols_freq = map(
         x -> begin
             data = filter(x -> x.log_topple_size .!= -Inf, x.topple_freqs)
             X = hcat(ones(size(data, 1)), data.log_topple_size)
             y = data.log_frequency
-            beta_hat = (X'X)^-1 * X'y
+            beta_hat = X\y
             return DataFrame(
                 size = x.size,
                 intercept = beta_hat[1],

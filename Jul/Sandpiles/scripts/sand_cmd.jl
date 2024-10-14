@@ -1,5 +1,5 @@
+using Pkg; Pkg.activate("Jul/Sandpiles")
 include("../src/sand_src.jl")
-using Pkg; Pkg.activate(".")
 using ArgParse
 using CSV
 
@@ -39,7 +39,7 @@ function main()
     for gridsize in gridsizes
         for rep in 1:get(parsed_args, "reps", 1)
             sim_log = simulate_sandpile(gridsize; drop_placement=distribution)
-            CSV.write("data/$(distribution)_$(gridsize)_rep_$(rep).csv", sim_log)
+            CSV.write("Jul/Sandpiles/data/sims/$(distribution)_$(gridsize)_rep_$(rep).csv", sim_log)
         end
     end
 end

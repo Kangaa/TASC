@@ -1,4 +1,6 @@
 using DataFrames
+using CSV 
+using StaticArrays
 using DataStructures
 mutable struct pile_stats 
     age::Int64
@@ -42,8 +44,12 @@ mutable struct SandPile
     end
 end
 
+abstract type StabilisationMethod end
+struct SingleThreaded <: StabilisationMethod end
+struct MultiThreaded <: StabilisationMethod end
+
 function get_neighbours(pile, site)
-    neighbours = Vector{CartesianIndex{2}}(undef, 4)
+    neighbours = MVector{4, CartesianIndex{2}}(undef)
     n_neighbors = 0
     if site[1] != 1
         neighbours[n_neighbors += 1] = site - CartesianIndex(1,0)
@@ -58,26 +64,26 @@ function get_neighbours(pile, site)
         neighbours[n_neighbors += 1] = site + CartesianIndex(0,1)
     end
 
-    return neighbours[1:n_neighbors]
+    return @views neighbours[1:n_neighbors]
 end
 
 function get_neighbours(grid::Matrix, site::CartesianIndex)
     neighbours_2 = Vector{CartesianIndex{2}}(undef, 4)
     n_neighbors = 0
     if site[1] != 1
-        neighbours_2[n_neighbors += 1] = site - CartesianIndex(1, 0)
+        @inbounds neighbours_2[n_neighbors += 1] = site - CartesianIndex(1, 0)
     end
     if site[1] != size(grid, 1)
-        neighbours_2[n_neighbors += 1] =  site + CartesianIndex(1,0)
+        @inbounds neighbours_2[n_neighbors += 1] =  site + CartesianIndex(1,0)
     end
     if site[2] != 1
-        neighbours_2[n_neighbors += 1] = site - CartesianIndex(0,1)
+        @inbounds neighbours_2[n_neighbors += 1] = site - CartesianIndex(0,1)
     end
     if site[2] != size(grid, 2)
-        neighbours_2[n_neighbors += 1] = site + CartesianIndex(0,1)
+        @inbounds neighbours_2[n_neighbors += 1] = site + CartesianIndex(0,1)
     end
 
-    return neighbours_2[1:n_neighbors]
+    return @views neighbours_2[1:n_neighbors]
 end
 
 function push_topple!(pile::SandPile, site::CartesianIndex)
@@ -86,11 +92,11 @@ function push_topple!(pile::SandPile, site::CartesianIndex)
 
     ## Spread the sand to neighbours
     spread_locations = get_neighbours(pile, site)
-    pile.grid[spread_locations] .+= 1
+    @inbounds @views pile.grid[spread_locations] .+= 1
     return spread_locations
 end
 
- function pull_topple!(Grid, site)
+ function pull_topple!(Grid, pile, site)
     new_value = 0
     topple = false
     neighbours = get_neighbours(Grid, site)
@@ -108,7 +114,7 @@ end
 
 ## Naive push stabilise function
 function stabilise!(pile, ::typeof(push_topple!))
-    while sum(pile.grid .>= pile.k) != 0
+    while any(pile.grid .>= pile.k)
         for site in eachindex(IndexCartesian(), pile.grid)
             if pile.grid[site] >= pile.k
                 push_topple!(pile, site)
@@ -129,7 +135,7 @@ function stabilise!(pile, ::typeof(push_topple!), sites)
         if pile.grid[site] >= pile.k
             spread = push_topple!(pile, site)
             for spread_site in spread
-                    push!(queue, spread_site)
+                push!(queue, spread_site)
             end
         end
     end
@@ -137,10 +143,22 @@ end
 
 ## naive pull stabilise function
 function stabilise!(pile, ::typeof(pull_topple!))
+    grid_copy = Array{Int8}(undef, size(pile.grid))
+    while sum(pile.grid .>= pile.k) != 0
+        grid_copy .= pile.grid
+        for site in eachindex(IndexCartesian(), pile.grid)
+            new_value, topple = pull_topple!(grid_copy, pile,  site)
+            pile.grid[site] += new_value
+        end
+    end
+end
+
+# multithreaded naive pull stabilise function
+function stabilise!(pile, ::typeof(pull_topple!), ::MultiThreaded)
     while sum(pile.grid .>= pile.k) != 0
         grid_copy = deepcopy(pile.grid)
-        for site in eachindex(IndexCartesian(), pile.grid)
-            new_value, topple = pull_topple!(grid_copy, site)
+        Threads.@threads for site in eachindex(IndexCartesian(), pile.grid)
+            new_value, topple = pull_topple!(grid_copy, pile,  site)
             pile.grid[site] += new_value
         end
     end
@@ -197,9 +215,9 @@ function simulate_sandpile(
     plot::String = "none")
     
     pile = SandPile(size, size, k)
-    # Define the column names and types
 
-    # Preallocate an empty array to hold the log with the specified length
+    pile.grid = rand(0:3, size, size)
+
     stats_log = DataFrame(
         t = 1:t_max,
         topples_at_t = zeros(Int, t_max),

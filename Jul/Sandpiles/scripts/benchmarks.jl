@@ -23,14 +23,49 @@ function create_test_grids(size::Int)
 
     grids
 end
-test_grids = create_test_grids(21)
+grid_size = 31
+test_grids = create_test_grids(grid_size)
+center = [CartesianIndex(div(grid_size, 2) + 1, div(grid_size, 2) + 1)]
 
-results = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
-
-for (i, grid) in enumerate(test_grids)
-    bench = @benchmark stabilise!(pile, pull_topple!) setup = (pile = SandPile(copy($grid)))
-    push!(results, (size = i, time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
+# Get avalance size for each test grid
+avalanche_sizes = []
+for grid in test_grids
+    grid = copy(grid)
+    pile = SandPile(grid)
+    stabilise!(pile, push_topple!)
+    push!(avalanche_sizes, sum(pile.stats.topple_count))
 end
 
-# Save results to CSV
-CSV.write("Jul/Sandpiles/data/benchmarks/benchmark_pull_naive.csv", results)
+
+## Push Topple
+### Naive
+Results_Push_Naive = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
+for (i, grid) in enumerate(test_grids)
+    bench = @benchmark stabilise!(pile, push_topple!) setup = (pile = SandPile(copy($grid)))
+    push!(Results_Push_Naive, (size = avalanche_sizes[i], time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
+end
+CSV.write("Jul/Sandpiles/Data/Benchmarks/Benchmark_$(grid_size)_Push_Naive.csv", Results_Push_Naive)
+
+### Targeted
+Results_Push_Targeted = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
+for (i, grid) in enumerate(test_grids)
+    bench = @benchmark stabilise!(pile, push_topple!, center) setup = (pile = SandPile(copy($grid)))
+    push!(Results_Push_Targeted, (size = avalanche_sizes[i], time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
+end
+CSV.write("Jul/Sandpiles/Data/Benchmarks/Benchmark_$(grid_size)_Pushstack_Targeted.csv", Results_Push_Targeted)
+
+## Pull Topple
+### Naive ST
+Results_Pull_NaiveST = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
+for (i, grid) in enumerate(test_grids)
+    bench = @benchmark stabilise!(pile, pull_topple!) setup = (pile = SandPile(copy($grid)))
+    push!(Results_Pull_NaiveST, (size = avalanche_sizes[i], time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
+end
+CSV.write("Jul/Sandpiles/Data/Benchmarks/Benchmark_$(grid_size)_Pull_NaiveST.csv", Results_Pull_NaiveST)
+### Naive MT
+Results_Pull_NaiveMT = DataFrame(size = Int[], time = Float64[], memory = Float64[], allocations = Int[])
+for (i, grid) in enumerate(test_grids)
+    bench = @benchmark stabilise!(pile, pull_topple!, MultiThreaded()) setup = (pile = SandPile(copy($grid)))
+    push!(Results_Pull_NaiveMT, (size = avalanche_sizes[i], time = minimum(bench).time, memory = minimum(bench).memory, allocations = minimum(bench).allocs))
+end
+CSV.write("Jul/Sandpiles/Data/Benchmarks/Benchmark_$(grid_size)_Pull_NaiveMT.csv", Results_Pull_NaiveMT)
