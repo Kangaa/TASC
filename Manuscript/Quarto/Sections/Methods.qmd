@@ -1,43 +1,7 @@
----
-title: The Art of Scientific computation 
-subtitle: A comparison of techniques for simulation of the abelian sandpile model
-engine: julia
-authors:
-  - name: (James) Reuben Bender
-    affiliation: The University of Melbourne
-    roles: writing
-    corresponding: true
-bibliography: TASC.bib
----
-
-# Summary
-
-# Introduction
-## Background
-### Sandpile Models
-  - Criticality
-  - Self-organized criticality
-  - Abelian sandpile model
-  - Generalised toppling processes
-  - Applications
-
-### Computational simulation
-  - Importance
-  - Challenges
-  - Programming languages
-    - Python
-    - Julia
-
-## Aims
-
-  - Impliment the Abelian Sandpile Model in Python and Julia
-  - Compare the performance of the two languages
-    - Speed
-    - Memory usage
-    - Scalability
-    - Numerical stability
 
 # Methodology
+
+
 ## Simulation Algorithms
 
 ### Toppling Algorithms
@@ -169,70 +133,3 @@ This algorithm assumes we have information about the locations of potential topp
 \end{algorihmic}
 \end{algorithm}
 ```
-
-## Implementation Details
-
-### Python Implementation
-
-  - naive
-  - parallel
-  - optimised
-  - total
-### Julia Implementation
-
-  - naive
-  - parallel
-  - optimised
-  - total
-
-## Computational Environment
-
-  - Hardware
-  - Software
-  - Libraries
-## Performance Metrics
-
-  - Execution time
-  - Memory consumption
-  - Scalability
-  - Numerical stability
-# Results
-
-## Performance Analysis
-### Different Toppling Algorithms
-![Execution time for different toppling algorithms](figures/topple_algos_benchmark.png)
-
-## Properties of the Sandpile
-
-![Distribution of avalanche sizes in the abelian sandpile model at different grid sizes](figures/topple_freqs.png)
-
-![OLS coefficients for topple size and frequency bu lattice size](figures/slope_vs_size.png)
-
-## Comparison of Results
-
-# Discussion
-## Abelian model
-
-
-## Language comparison
-
-### Advantages and Limitations
-
-## Implications for Computational Simulations
-
-# Conclusion
-
-## Summary of Findings
-
-## Recommendations
-
-## Future Work
-
-
-# References
-
-# Appendices
-
-
-
-
