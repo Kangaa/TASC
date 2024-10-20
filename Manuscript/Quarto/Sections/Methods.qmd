@@ -1,9 +1,5 @@
 
-# Methodology
-
-
 ## Simulation Algorithms
-
 ### Toppling Algorithms
 #### 'Push' topple algorithm
 

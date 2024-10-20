@@ -1,0 +1,12 @@
+{
+  "hash": "a25aaab3513dcfad7672871d4c2a52d9",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: TASC\nauthors:\n  - name: (James) Reuben Bender\n    affiliation: The University of Melbourne\n    roles: writing\n    corresponding: true\nbibliography: references.bib\n---\n\n\n# Summary\n\n\n```{julia}\n1+1\n```\n\n::: {#bf2818e4 .cell execution_count=1}\n``` {.python .cell-code .hidden}\n1+1\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n2\n```\n:::\n:::\n\n\n:::{#caadf503 .cell .markdown}\n# Introduction\n\n# Methods\n\n# Results\n\n# Discussion\n:::\n\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

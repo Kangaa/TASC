@@ -1,0 +1,15 @@
+# Naive sandpile stabilisation performance in python, julia, and C.
+
+## Basic toppling and stabilisation algorithms
+
+### the 'push' topple algorithm
+The push algorithm is a simple way to implement the toppling of a site in a sandpile model. The implimentation follow the intuitive desription of the toppling process: if a certain site $X_ij$ is at/above the height threshold $k$, and so is unstable. stabilisiation of this site occurrs by distributing its grains to it's four neighbours. i.e. each of ${X_{i-1,j}, X_{i+1,j}, X_{i,j-1}, X_{i,j+1}}$ recieves one grain and $X_ij$ looses four grains. ![push_topple](figures/push_topple.svg).@alg-push_topple.
+
+### Naive stabilisation algorithm
+The naive stabilisation algorithm is naive in in the sense that it does not assume any information about where topples might occur (i.e. it checks every site, c.f.the targeted algorithm). The algorithm iterates over each site in the lattice applying a toppling rule (e.g. the push algorithm) until no sites are above the threshold @alg-naive_stabilisation.
+
+## Benchmarking setup
+To compare the performance across languages, a consistent test setup is needed. Thankfully, the deterministic nature of the sandpile model allows the simple construction of sandpiles with known stabilisation times. Given a NxN lattice, test sandpiles can be constructed by filling the central $3 < n< N$ sites of an empty lattice with $k-1$ grains. addition of a single grain at the center of the lattice will cause increasing number of topplings as $n$ increases.  Such regular grids will be used to test the performance of implementations of the naive push stabilisation algorithm in python, and julia. Specific implimentations of the algorithm in each language are given in appendix 1. 
+
+## Results
+The performance of the naive stabilisation algorithm was tested on a 101x101 lattice with $k=4$ grains. The number of topplings required to stabilise the lattice was recorded for each $n$ in the range $3 < n < 100$. The results are shown in figure @fig-language_perf.

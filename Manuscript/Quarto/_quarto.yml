@@ -6,6 +6,7 @@ filters:
   - pseudocode
 manuscript:
   article: index.qmd
+bibliography: TASC.bib
 
 format:
   html:

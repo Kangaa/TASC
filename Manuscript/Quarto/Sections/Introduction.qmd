@@ -17,4 +17,7 @@ Programming languages: The choice of programming language can also have a signif
 
 While these approaches well established and can result in highly efficient implimentations, the two language approach has drawbacks. The most obvious is the need to develop (and potentially maintain) two separate codebases. Moreover, the specialised skills needed to develop and maintain high performance code in a low-level language can be a barrier to entry for many researchers. This barrier can be compounded by the discontinuity in source material between two codebases. For example, localising and adressing bugs can require more elaborate error handling and logging when the code is split between two languages.
 
-The Julia language
+The Julia language was developed as an alternative to the two-language approach @. A high level, dynamic language Julia's progressive typing and type inference system, along with just-in-time compilation, intends to allow for easily readable and maintainable code that can be optimised for performance without leaving the language - a language that 'walks like python, runs like C'.
+
+This report will present a comparison of the performance of several different algorithms for simulating the BTW model, implemented in Julia and python. The aim is to explore the trade-offs between algorithm design and programming language choice, and to potentially to inform students or researchers devevloping their own simulations of the BTW model.
+

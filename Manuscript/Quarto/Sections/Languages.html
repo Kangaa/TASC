@@ -1,184 +1,62 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-    <meta charset="utf-8">
-    <meta name="generator" content="quarto-1.5.57">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-    <title>introduction</title>
-    <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      div.columns{display: flex; gap: min(4vw, 1.5em);}
-      div.column{flex: auto; overflow-x: auto;}
-      div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-      ul.task-list{list-style: none;}
-      ul.task-list li input[type="checkbox"] {
-        width: 0.8em;
-        margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-        vertical-align: middle;
-      }
-    </style>
+<title>languages</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
 
-    <style>
-      body.hypothesis-enabled #quarto-embed-header {
-        padding-right: 36px;
-      }
 
-      #quarto-embed-header {
-        height: 3em;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: solid 1px;
-      }
+<script src="Languages_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Languages_files/libs/quarto-html/quarto.js"></script>
+<script src="Languages_files/libs/quarto-html/popper.min.js"></script>
+<script src="Languages_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Languages_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Languages_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Languages_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Languages_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Languages_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Languages_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
-      #quarto-embed-header h6 {
-        font-size: 1.1em;
-        padding-top: 0.6em;
-        margin-left: 1em;
-        margin-right: 1em;
-        font-weight: 400;
-      }
 
-      #quarto-embed-header a.quarto-back-link,
-      #quarto-embed-header a.quarto-download-embed {
-        font-size: 0.8em;
-        margin-top: 1em;
-        margin-bottom: 1em;
-        margin-left: 1em;
-        margin-right: 1em;
-      }
+</head>
 
-      .quarto-back-container {
-        padding-left: 0.5em;
-        display: flex;
-      }
+<body class="fullcontent">
 
-      .headroom {
-          will-change: transform;
-          transition: transform 200ms linear;
-      }
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 
-      .headroom--pinned {
-          transform: translateY(0%);
-      }
+<main class="content" id="quarto-document-content">
 
-      .headroom--unpinned {
-          transform: translateY(-100%);
-      }      
-    </style>
 
-    <script>
-    window.document.addEventListener("DOMContentLoaded", function () {
 
-      var header = window.document.querySelector("#quarto-embed-header");
-      const titleBannerEl = window.document.querySelector("body > #title-block-header");
-      if (titleBannerEl) {
-        titleBannerEl.style.paddingTop = header.clientHeight + "px";
-      }
-      const contentEl = window.document.getElementById('quarto-content');
-      for (const child of contentEl.children) {
-        child.style.paddingTop = header.clientHeight + "px";
-        child.style.marginTop = "1em";
-      }
 
-      // Use the article root if the `back` call doesn't work. This isn't perfect
-      // but should typically work
-      window.quartoBackToArticle = () => {
-        var currentUrl = window.location.href;
-        window.history.back();
-        setTimeout(() => {
-            // if location was not changed in 100 ms, then there is no history back
-            if(currentUrl === window.location.href){              
-                // redirect to site root
-                window.location.href = "...html";
-            }
-        }, 100);
-      }
-
-      const headroom = new window.Headroom(header, {
-        tolerance: 5,
-        onPin: function () {
-        },
-        onUnpin: function () {
-        },
-      });
-      headroom.init();
-    });
-    </script>
-
-    
-<script src="../site_libs/manuscript-notebook/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-html/quarto.js"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<script src="../site_libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.js"></script>
-<link href="../site_libs/quarto-contrib/pseudocode-2.4.1/pseudocode.min.css" rel="stylesheet">
-     <script>
-MathJax = {
-  loader: {
-    load: ['[tex]/boldsymbol']
-  },
-  tex: {
-    tags: "all",
-    inlineMath: [['$','$'], ['\\(','\\)']],
-    displayMath: [['$$','$$'], ['\\[','\\]']],
-    processEscapes: true,
-    processEnvironments: true,
-    packages: {
-      '[+]': ['boldsymbol']
-    }
-  }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>  
-      </head>
-
-  <body class="quarto-notebook">
-    <div id="quarto-embed-header" class="headroom fixed-top bg-primary">
-      
-      <a onclick="window.quartoBackToArticle(); return false;" class="btn btn-primary quarto-back-link" href=""><i class="bi bi-caret-left"></i> Back to Article</a>
-      <h6><i class="bi bi-journal-code"></i> The abelian sandpile model</h6>
-
-            <a href="../Sections/Introduction.qmd" class="btn btn-primary quarto-download-embed" download="Introduction.qmd">Download Source</a>
-          </div>
-
-     <div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
-<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
-  <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#the-abelian-sandpile-model" id="toc-the-abelian-sandpile-model" class="nav-link active" data-scroll-target="#the-abelian-sandpile-model">The abelian sandpile model</a></li>
-  </ul>
-</nav>
-</div>
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-</div>
-<main class="content quarto-banner-title-block" id="quarto-document-content">      <section id="the-abelian-sandpile-model" class="level2">
-<h2 class="anchored" data-anchor-id="the-abelian-sandpile-model">The abelian sandpile model</h2>
-<p>The abelian sandpile model is a cellular automaton that models the behavior of a pile of sand grains. The model is defined on a lattice, where each point (site) can hold a certain number of grains (i.e.&nbsp;be at a certain ‘height’). When a site reaches a certain height, it becomes unstable and topples, sending one grain to each of its neighbors. This spread of sand can cause a chain reaction of topplings -an avalanche- that can propagate through the lattice. While each topple is simple and deterministic, predicting the size and shape of the avalanches on a large lattice can be non-trivial - a problem compounded as we model the behaviour of the system over time (i.e.&nbsp;as we continue to add grains). Therefore, the abelian sandpile model is a good candidate for computational simulation. By repeating the toppling/avalance process iteratively, we can might hope to characterise statistical features of the system, such as the distribution of avalanche sizes (both in terms of number of topples and spatial scale), the average number of grains present on the lattice, or the</p>
-<p>When implimenting a sumultation of the ASM, we do not have the option of employing an infinite sized grid. Instead, we must choose a finite grid size, and implement special transition conditions at the boundaries.</p>
-<p>When using a finite grid and losing grains at the edges, our output is subject to so called ‘finite size effects’, whereby extreme events are less common than we would expect on an infinite grid. This is because the avalanches are more likely to be cut off by the boundaries. To a ### Applications of the BTW model e.g.&nbsp;simulation of physical systems, traffic flow, forest fires, epidemiological models etc. ## Scientific programming tools</p>
-<p>In large sandpiles, which have the potential for large scale avalanves (e.g.&nbsp;involving millions of topples), the computational tools and techniques used to simulate the model are crucial. A secomdary aim of this progject (in adittion to presenting the BTW model) is to explore several alternative computational techniques for developing and simulating the model. There are two main aspects I will consider:</p>
-<p>Algorithm design: The way in which the toppling and stabilisation algorithms implemented can have a significant impact on the efficiency of the simulation. These design decisions will depend on the backend on which the simulation is run - e.g.&nbsp;Does the algorithm complexity scale efficiently with the lattice size (to avoid memory bottlenecks)? Can the algorithm make use of the multithreading capabilities of modern CPUs (or, moreover, GPUs)? Therefore, there is unlikely to be a single optimal algorithm, but rather a trade-off between different factors. I will compare the performance of several different algorithms for simulating the BTW model.</p>
-<p>Programming languages: The choice of programming language can also have a significant impact on the efficiency of simulation; both in the sense of the time taken to run the simulation, and the ease of developing and maintaining code. Modern scientific programming typically falls into a two-language paridigm, wherein a relatively high-level, dynamic language (usually python) is used for rapid prototyping and data analysis, and a lower-level, statically typed and compiled language (e.g.&nbsp;C, C++, Fortran) is used for computationally intensive tasks. There is some middle ground here with the use of high level wrappers in dynamic languages that call high performance compiled code for performance critical tasks (e.g.&nbsp;numpy, scipy, numba in python).</p>
-<p>While these approaches well established and can result in highly efficient implimentations, the two language approach has drawbacks. The most obvious is the need to develop (and potentially maintain) two separate codebases. Moreover, the specialised skills needed to develop and maintain high performance code in a low-level language can be a barrier to entry for many researchers. This barrier can be compounded by the discontinuity in source material between two codebases. For example, localising and adressing bugs can require more elaborate error handling and logging when the code is split between two languages.</p>
-<p>The Julia language was developed as an alternative to the two-language approach @. A high level, dynamic language Julia’s progressive typing and type inference system, along with just-in-time compilation, intends to allow for easily readable and maintainable code that can be optimised for performance without leaving the language - a language that ‘walks like python, runs like C’.</p>
-<p>This report will present a comparison of the performance of several different algorithms for simulating the BTW model, implemented in Julia, Python and C++. The aim is to explore the trade-offs between algorithm design and programming language choice, and to potentially to inform students or researchers devevloping their own simulations of the BTW model.</p>
+<section id="naive-sandpile-stabilisation-performance-in-python-julia-and-c." class="level1">
+<h1>Naive sandpile stabilisation performance in python, julia, and C.</h1>
+<section id="naive-toppling-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="naive-toppling-algorithm">Naive toppling algorithm</h2>
+<p>The naive algorithm is naive in the sense that it is the most straightforward way to implement the toppling, but also in the sense that it does not assume any information about where topples might occur (i.e.&nbsp;it checks every site, c.f. the targeted algorithm). The algorithm iterates over each site in the lattice, and if the site has more sand than the threshold value (e.g.&nbsp;for a two dimensional lattice, four grains or more), it topples and sends sand to its neighbors <img src="figures/push_topple.svg" class="img-fluid" alt="push_topple">.@alg-push_topple.</p>
 </section>
-     </main>
-<!-- /main column -->  <script id="quarto-html-after-body" type="application/javascript">
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -597,37 +475,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>  </div> <!-- /content -->      <script type="text/javascript">
-    (function(d) {
-      d.querySelectorAll(".pseudocode-container").forEach(function(el) {
-        let pseudocodeOptions = {
-          indentSize: el.dataset.indentSize || "1.2em",
-          commentDelimiter: el.dataset.commentDelimiter || "//",
-          lineNumber: el.dataset.lineNumber === "true" ? true : false,
-          lineNumberPunc: el.dataset.lineNumberPunc || ":",
-          noEnd: el.dataset.noEnd === "true" ? true : false,
-          titlePrefix: el.dataset.captionPrefix || "Algorithm"
-        };
-        pseudocode.renderElement(el.querySelector(".pseudocode"), pseudocodeOptions);
-      });
-    })(document);
-    (function(d) {
-      d.querySelectorAll(".pseudocode-container").forEach(function(el) {
-        let captionSpan = el.querySelector(".ps-root > .ps-algorithm > .ps-line > .ps-keyword")
-        if (captionSpan !== null) {
-          let captionPrefix = el.dataset.captionPrefix + " ";
-          let captionNumber = "";
-          if (el.dataset.pseudocodeNumber) {
-            captionNumber = el.dataset.pseudocodeNumber + " ";
-            if (el.dataset.chapterLevel) {
-              captionNumber = el.dataset.chapterLevel + "." + captionNumber;
-            }
-          }
-          captionSpan.innerHTML = captionPrefix + captionNumber;
-        }
-      });
-    })(document);
-    </script>
-   
-  
+</script>
+</div> <!-- /content -->
+
+
+
+
 </body></html>
