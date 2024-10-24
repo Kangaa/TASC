@@ -2,6 +2,10 @@ using DataFrames
 using CSV 
 using StaticArrays
 using DataStructures
+using AMDGPU
+using KernelAbstractions
+import AcceleratedKernels as AK
+
 mutable struct pile_stats 
     age::Int64
     mass::Int64
@@ -15,7 +19,7 @@ end
 
 
 mutable struct SandPile
-    grid::Matrix{Int8}
+    grid::AbstractArray{Int8} 
     const n::Int
     const m::Int
     const k::Int
@@ -29,7 +33,7 @@ mutable struct SandPile
         new(grid, n, m, k, k % 4, k ÷ 4, pile_stats(grid))
     end
 
-    function SandPile(grid::Matrix) 
+    function SandPile(grid::AbstractArray) 
         n, m = size(grid)
         k = 2*length(size(grid))
     new(
@@ -47,7 +51,7 @@ end
 abstract type StabilisationMethod end
 struct SingleThreaded <: StabilisationMethod end
 struct MultiThreaded <: StabilisationMethod end
-
+struct GPUarray <: StabilisationMethod end
 function get_neighbours(pile, site)
     neighbours = MVector{4, CartesianIndex{2}}(undef)
     n_neighbors = 0
@@ -112,6 +116,95 @@ end
     return (new_value, topple)
 end
 
+## Pull topple GPU kernel
+@kernel function pull_kernel(input, output, n, m)
+    # Global indices (1-based)
+    gi, gj = @index(Global, NTuple)
+
+    # Local indices (1-based)
+    li, lj = @index(Local, NTuple)
+
+    # Work-group sizes
+    WG_size_X, WG_size_Y = @groupsize()
+
+    # Shared memory allocation with border
+    tile = @localmem(Int8, (WG_size_X + 2, WG_size_Y + 2))
+
+    # Adjusted shared memory indices
+    si = li + 1
+    sj = lj + 1
+
+    # Load central elements into shared memory
+    tile[si, sj] = input[gi, gj]
+
+
+    # Load halo elements
+    # Left border
+    if li == 1
+        if gi > 1
+            tile[si - 1, sj] = input[gi - 1, gj]
+        else
+            tile[si - 1, sj] = zero(Int8)
+        end
+    end
+
+    # Right border
+    if li == WG_size_X
+        if gi < n
+            tile[si + 1, sj] = input[gi + 1, gj]
+        else
+            tile[si + 1, sj] = zero(Int8)
+        end
+    end
+
+    # Top border
+    if lj == 1
+        if gj > 1
+            tile[si, sj - 1] = input[gi, gj - 1]
+        else
+            tile[si, sj - 1] = zero(Int8)
+        end
+    end
+
+    # Bottom border
+    if lj == WG_size_Y
+        if gj < m
+            tile[si, sj + 1] = input[gi, gj + 1]
+        else
+            tile[si, sj + 1] = zero(Int8)
+        end
+    end
+
+    @synchronize
+
+    output[gi, gj] =  input[gi, gj]
+    count = 0
+    if tile[si,sj] >= 4 
+        count -= 4
+    end
+
+    # Left neighbor
+    if tile[si - 1, sj] >= 4
+        count += 1
+    end
+
+    # Right neighbor
+    if tile[si + 1, sj] >= 4
+        count += 1
+    end
+
+    # Top neighbor
+    if tile[si, sj - 1] >= 4
+        count += 1
+    end
+
+    # Bottom neighbor
+    if tile[si, sj + 1] >= 4
+        count += 1
+    end
+
+    output[gi, gj] += count
+end
 ## Naive push stabilise function
 function stabilise!(pile, ::typeof(push_topple!))
     while any(pile.grid .>= pile.k)
@@ -123,20 +216,27 @@ function stabilise!(pile, ::typeof(push_topple!))
     end
 end
 
+function pushUnique!(to, from)
+    for item in from
+        if item ∉ to
+            push!(to, item)
+        end
+    end
+end
+
 ## Targeted push stabilise function
 function stabilise!(pile, ::typeof(push_topple!), sites)
     queue = Stack{CartesianIndex{2}}()
+
     for site in sites
         push!(queue, site)
     end
 
     while !isempty(queue)
         site = pop!(queue)
-        if pile.grid[site] >= pile.k
+        while pile.grid[site] >= pile.k
             spread = push_topple!(pile, site)
-            for spread_site in spread
-                push!(queue, spread_site)
-            end
+            pushUnique!(queue, spread)
         end
     end
 end
@@ -164,7 +264,22 @@ function stabilise!(pile, ::typeof(pull_topple!), ::MultiThreaded)
     end
 end
 
+# GPU stabilise 
+function stabilise!(pile, ::GPUarray)
+    grid = pile.grid
+    n, m = size(grid)
+    k = pile.k
+    dev = get_backend(grid)
+    while AK.any(x->x>=k, reshape(grid, m*n))
+        pull_kernel(dev, 16)(grid, n, m, ndrange = (n, m))
+        synchronize(dev)
+    end
+end
+
 ## Targeted pull stabilise function
+
+
+
 function stabilise!(pile, ::typeof(pull_topple!), sites)
     ## Queue setup
     queue = Deque{CartesianIndex{2}}()

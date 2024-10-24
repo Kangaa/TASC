@@ -1,10 +1,12 @@
+using Pkg; Pkg.activate("Jul/Sandpiles")
+
 ## Check that the toppling/stabilization process is working correctly
 include("../src/sand_src.jl")
 
 ## Test the topple! function
 grid = [0 0 0; 0 4 0; 0 0 0]
 pile = SandPile(grid)
-@code_warntype push_topple!(pile, CartesianIndex(2,2))
+ push_topple!(pile, CartesianIndex(2,2))
 @assert pile.grid == [0 1 0; 1 0 1; 0 1 0]
 
 grid = [4 0 0; 0 0 0; 0 0 0]
@@ -19,6 +21,8 @@ pile = SandPile(grid)
 stabilise!(pile, push_topple!)
 @assert pile.grid == [1 3 1; 3 0 3; 1 3 1]
 
+
+
 grid = fill(3,11,11)
 site = CartesianIndex(6,6)
 grid[site] = 4
@@ -26,11 +30,11 @@ pile = SandPile(grid)
 stabilise!(pile, push_topple!, [site])
 @assert all(pile.grid .< 4)
 
-grid = fill(3,20,20)
-site = CartesianIndex(7, 7)
+grid = fill(3,101,101)
+site = CartesianIndex(size(grid) .÷ 2)
 grid[site] = 4
 pile = SandPile(grid)
-stabilise!(pile, push_topple!, [site])
+stabilise!(pile, push_topple!)
 @assert all(pile.grid .< 4)
 
 ### Naive pull stabilise function
@@ -76,4 +80,19 @@ stabilise!(pile, push_topple!, [center])
 ##test the simulate_sandpile function
 statlog = simulate_sandpile(13)
 
-statlog.topples_at_t |> maximum
+
+### GPU test
+grid = fill(Int64(3),61,61)
+site = CartesianIndex(size(grid) .÷ 2 .+ 1)
+grid[site] = 4
+ROCgrid =  ROCArray(grid)
+pile = SandPile(ROCgrid)
+
+dev = get_backend(ROCgrid)
+temp_array = ROCArray(zeros(Int64, size(ROCgrid)))
+pull_kernel(dev, (8, 8))(ROCgrid, temp_array,  pile.m, pile.n, ndrange = (pile.m, pile.n));synchronize(dev);ROCgrid .= temp_array
+
+
+stabilise!(pile, GPUarray())
+pile.grid
+@assert all(pile.grid .< 4)
