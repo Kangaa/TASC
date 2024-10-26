@@ -1,9 +1,24 @@
 project:
-  type: manuscript
+  type: book
 filters:
   - pseudocode
-manuscript:
-  article: index.qmd
+book:
+  title: The Art of Scientific Computation 
+  subtitle: A survey of techniques for simulation of the abelian sandpile model
+  author:
+     name: James Reuben Bender
+     affiliation: The University of Melbourne
+     roles: writing
+     corresponding: true
+  date: today
+  chapters:
+    - index.qmd
+    - chapters/Introduction.qmd
+    - chapters/Languages.qmd
+    - chapters/Algorithms.qmd
+    - chapters/References.qmd
+  appendices: 
+    - chapters/Appendix_Julia.qmd
 bibliography: TASC.bib
 
 format:
