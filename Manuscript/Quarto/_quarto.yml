@@ -16,9 +16,10 @@ book:
     - chapters/Introduction.qmd
     - chapters/Languages.qmd
     - chapters/Algorithms.qmd
+    - chapters/Sandpile_dynamics.qmd
     - chapters/References.qmd
   appendices: 
-    - chapters/Appendix_Julia.qmd
+    - chapters/Appendix.qmd
 bibliography: TASC.bib
 
 format:

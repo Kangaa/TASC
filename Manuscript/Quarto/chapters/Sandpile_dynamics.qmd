@@ -1,0 +1,23 @@
+# Sandpile dynamics
+
+## Criticality
+
+One of the simplest statistics we are keeping track of in our simulation is the total 'mass' of the pile. Observing the distribution of mass across time lets us identify a key feature of the model - the 'self-organised criticality' property. ![single pile mass over time](../../figures/31x31_single_mass_over_time.png){#fig-single_mass_over_time}
+
+@fig-single_mass_over_time shows the mass of an arbitrarily chosen pile (in this case a S = 31 pile) over time. We note the steady increase in mass over some initial period as the pile accumulates grains without substantial toppling near the lattice edges (the only time a loss of mass occurs) in what we will call the 'bedding in' period)[^sandpile_dynamics-1]. This bedding in period is followed by an apparent stabilisation/eliquibration of the mass added by at each time step and the rate of mass loss due to toppling at edges. The dynamic equilibrium (which occurs in @fig-single_mass_over_time at $~ 2000$ grains) is the 'critical state' which is of such interest instudying sandpile dynamics. As will be elaborated on shortly, the size of a given avalanche after reaching this critical state is expected to follow a power-law distribution. Importantly, the initial bedding in period is what has been characterised as the 'self-organisation' of the system towards the critical equilibrium state. We can see in @fig-many_mass_over_time that all such $31\times31$ piles simulated under the BTW model inevitably approach a similar critical state.
+
+[^sandpile_dynamics-1]: Noting that our simulation does not begin at at zero mass when t=0, but is rather seeded with a random (sub-threshold) distribution of grains @sec-main_simulation_function. This is largely to spare computation of the largely uninteresting bedding in sequence.
+
+![many pile mass over time](../../figures/31x31_all_mass_over_time.png){#fig-many_mass_over_time}
+
+Indeed, by $t=1000$ all of the (10) simulations have clearly reached the criticality. The mass of each pile is now fluctuating around a mean value. To make comparison with other models easier, we can instead consider $\hat{H} = \frac{L^{2}}{L^2}$, the average mass per site.
+
+![average site mass over time at for several pile sizes](../../figures/mean_site_mass_over_time.png){#fig-average_site_mass_over_time}
+
+@fig-average_site_mass_over_time shows the average mass per site for piles of several sizes over time. We can see clearly a different in the time to reach criticality - naturally arising because of the constant rate of grain addition (i.e. one grain per time step) and the different number of sites in each pile. If we choose some criterion for identifying the onset of criticallity (note the stochastic data here makes this necessarily imprecise) - for example, the time at which the piles reach $\hat{H} = 2.1$ - we can separate the bedding in and critical periods. @fig-time_to_criticality shows the time to criticality for piles of different sizes, plotted on log axes. ![test](../../figures/time_to_criticality_by_size.png){#fig-time_to_criticality}
+
+This linear relationship in the log-log plot is indicative of a power-law relationship between the size of the pile and the time to reach criticality. Specifically, the slope of this trend is approximately $d = 1.92$ and the intercept is close to zero, suggesting a relationship of the form $t_{\text{crit}} \propto L^{d}$. This is consistent with the expected behaviour of the model, as the number of sites in the pile is proportional to $L^{2}$, and the time to reach criticality is proportional to the number of sites that must be update (i.e. the relationship between a the area of a square and the length of it's sides follows a similar power law).
+
+Now considering the critical state alone, we can observe the distributions of $\hat{H}$ for each lattice size after we can be confident it has reached criticality (i.e some time after $t_{crit} = L^1.92$). @fig-critical_state shows mean site mass while in criticallity for a range of pile sizes. ![test](../../figures/mean_mass_at_criticality.png){#fig-critical_state}
+
+This relationship appears not to be a power law, but rather the

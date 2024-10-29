@@ -1,3 +1,0 @@
-# julia
-## Appendix 2
-#### Test
